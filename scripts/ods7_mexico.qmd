@@ -1,0 +1,230 @@
+---
+title: "ODS 7 en México: Energía Asequible y No Contaminante"
+format:
+  dashboard:
+    theme: cosmo
+    orientation: columns
+execute:
+  echo: false
+---
+
+## 📊 Panorama general
+
+::: {.column width="40%"}
+
+### 🧭 Contexto
+
+Del acceso, a la sostenibilidad:  
+*¿Qué tan cerca está México del ODS 7?*
+
+- Acceso a electricidad
+- Brechas entre estados
+- Transición energética
+
+:::
+
+::: {.column width="60%"}
+
+```{python}
+import pandas as pd
+import numpy as np
+import plotly.express as px
+```
+
+```{python}
+
+df = pd.read_excel("datos_mex.xlsx", skiprows=3)
+df.columns = ['Entidad','1990','1995','2000','2005','2010','2020']
+df.head()
+```
+
+```{python}
+
+df_melt = df.melt(id_vars='Entidad', var_name='Año', value_name='Acceso')
+
+fig = px.line(
+    df_melt,
+    x='Año',
+    y='Acceso',
+    color='Entidad',
+    title='Evolución del acceso a electricidad por entidad en México'
+)
+
+fig.show()
+```
+
+```{python}
+
+top5_1990 = df.sort_values('1990', ascending=False).head(5)
+
+fig = px.bar(
+    top5_1990,
+    x='Entidad',
+    y='1990',
+    title='Top 5 estados con mayor acceso a electricidad en 1990'
+)
+
+fig.show()
+```
+```{python}
+
+top5_2020 = df.sort_values('2020', ascending=False).head(5)
+
+df_top = df[df['Entidad'].isin(top5_2020['Entidad'])]
+df_top_melt = df_top.melt(id_vars='Entidad', var_name='Año', value_name='Acceso')
+
+fig = px.line(
+    df_top_melt,
+    x='Año',
+    y='Acceso',
+    color='Entidad',
+    title='Evolución del Top 5 estados (según 2020)'
+)
+
+fig.show()
+```
+
+```{python}
+tiempo = np.arange(1, 31)
+
+Fotovoltaica = [77.734, 75.896, 67.706, 66.345, 65.251, 31.481, 51.365, 39.731, 41.472, 60.021,
+                61.619, 48.129, 48.449, 64.222, 56.514, 62.763, 63.724, 62.179, 63.765, 57.944,
+                65.396, 58.747, 53.025, 67.564, 62.977, 67.099, 65.804, 67.201, 38.952, 62.188]
+
+Eolica = [1150.409, 1914.519, 1953.881, 2036.809, 2111.234, 1664.104, 2146.573, 2003.578, 2191.694,
+          822.86, 71.648, 204.708, 228.463, 838.311, 679.442, 598.058, 275.413, 284.151, 1008.141,
+          923.85, 977.163, 1439.829, 1962.961, 237.104, 103.771, 584.668, 734.917, 542.034, 959.821, 990.308]
+
+Biomasa = [0.413, 0.424, 0.343, 0.239, 0.208, 0, 0, 0.481, 0.489, 0, 0, 0, 0, 0, 0, 0, 0, 0.466, 0, 0,
+           0, 0, 0, 0, 1.141, 0, 0, 0, 0.022, 0]
+
+Carboelectrica = [4160.364, 4147.988, 2866.688, 3755.075, 4159.105, 4102.709, 4102.693, 4141.951,
+                  3986.507, 4185.096, 3869.514, 4201.319, 4210.304, 4208.224, 4235.52, 4226.629,
+                  4171, 3968.61, 4131.975, 3497.65, 4251.095, 3590.643, 4358.339, 4101.626,
+                  4471.291, 4485.042, 4472.214, 4450.092, 4347.882, 4103.266]
+
+Ciclo_Combinado = [17082.685, 16334.22, 15188.332, 16343.969, 16003.291, 16107.13, 16018.594,
+                   16066.616, 15159.045, 14523.366, 15753.894, 15773.119, 15754.304, 16198.033,
+                   17492.974, 16425.796, 16036.5, 16879.438, 17340.931, 16671.7, 16407.958,
+                   16395.796, 15571.571, 14426.905, 15851.42, 16609.453, 16392.374, 16502.008,
+                   16327.793, 16190.568]
+
+Combustion_Interna = [242.57, 267.297, 261.412, 191.43, 179.272, 184.964, 203.244, 209.879,
+                      219.844, 215.72, 212.757, 214.112, 178.735, 206.033, 178.049, 175.056,
+                      187.162, 201.161, 172.618, 211.943, 204.447, 211.104, 212.193, 211.586,
+                      207.582, 184.49, 207.821, 207.357, 212.026, 209.67]
+
+Geotermoelectrica = [667.293, 668.938, 662.482, 663.052, 650.793, 625.57, 661.509, 655.594,
+                     661.587, 643.124, 645.863, 672.905, 665.917, 699.065, 700.066, 700.168,
+                     693.819, 672.225, 665.47, 669.986, 666.039, 668.185, 673.172, 674.724,
+                     672.955, 671.449, 670.278, 670.203, 668.888, 669.24]
+
+Hidroelectrica = [5377.45, 3506.548, 3473.339, 5690.594, 5715.654, 6389.482, 6537.399, 6898.81,
+                  6267.126, 3579.221, 8275.371, 8054.642, 7399.727, 6776.836, 6025.379, 5523.262,
+                  2867.04, 7506.338, 4993.898, 6188.225, 5574.24, 5779.724, 4410.141, 3739.742,
+                  7150.676, 5898.379, 5360.457, 6491.586, 6640.447, 4790.098]
+
+Nucleoelectrica = [777.693, 791.842, 790.784, 794.18, 790.753, 788.85, 789.823, 787.393,
+                   736.167, 787.824, 789.091, 789.77, 784.896, 786.034, 785.818, 732.326,
+                   780.644, 783.036, 784.534, 786.487, 786.391, 785.788, 475.947, 781.151,
+                   785.164, 783.584, 783.512, 783.476, 780.217, 785.315]
+
+Termica_Convencional = [5047.694, 4078.803, 1823.33, 3076.21, 3678.683, 3915.959, 3808.822,
+                        3528.402, 3180.857, 3079.297, 5146.549, 5518.593, 5658.594, 5805.235,
+                        5229.603, 4978.79, 3909.595, 5241.629, 5588.402, 5866.462, 5970.836,
+                        6177.165, 5000.938, 3625.223, 5668.242, 6367.981, 6369.105, 5693.298,
+                        6096.383, 5052.42]
+
+Turbo_Gas = [1361.955, 1278.673, 1074.333, 1446.391, 1479.373, 1412.703, 1484.507, 1576.179,
+             1256.611, 1075.092, 1088.249, 1180.886, 1336.28, 1153.018, 1054.171, 1069.501,
+             889.372, 937.43, 1108.311, 1366.981, 1329.902, 1373.054, 1326.882, 1179.498,
+             1229.284, 1335.558, 1601.56, 1662.429, 1607.657, 1725.555]
+
+datos = pd.DataFrame({
+    "Dia": tiempo,
+    "Fotovoltaica": Fotovoltaica,
+    "Eolica": Eolica,
+    "Biomasa": Biomasa,
+    "Carboelectrica": Carboelectrica,
+    "Ciclo_Combinado": Ciclo_Combinado,
+    "Combustion_Interna": Combustion_Interna,
+    "Geotermoelectrica": Geotermoelectrica,
+    "Hidroelectrica": Hidroelectrica,
+    "Nucleoelectrica": Nucleoelectrica,
+    "Termica_Convencional": Termica_Convencional,
+    "Turbo_Gas": Turbo_Gas
+})
+```
+```{python}
+fig = px.line(
+    datos,
+    x="Dia",
+    y=datos.columns[1:],
+    title="Generación eléctrica por tecnología (2016)"
+)
+
+fig.show()
+```
+```{python}
+porcentaje = datos.iloc[:,1:].div(datos.iloc[:,1:].sum(axis=1), axis=0)
+
+fig = px.area(
+    porcentaje,
+    x=datos["Dia"],
+    y=porcentaje.columns,
+    title="Porcentaje de Generación de Electricidad Por Tipo de Tecnología"
+)
+
+fig.show()
+```
+```{python}
+import pandas as pd
+df = pd.read_csv("Generacion Liquidada_L0 SEN marzo 2026 v2026 04 14_05 00 01.csv", skiprows=7)
+df.columns = df.columns.str.strip()
+
+df.head()
+```
+```{python}
+df["Dia"] = pd.to_datetime(df["Dia"], format="%d/%m/%Y")
+df_filtrado = df[df["Hora"] == 12]
+
+```
+```{python}
+import plotly.express as px
+
+fig = px.line(
+    df_filtrado,
+    x="Dia",
+    y=[
+        "Fotovoltaica",
+        "Eolica",
+        "Biomasa",
+        "Carboelectrica",
+        "Ciclo Combinado",
+        "Combustion Interna",
+        "Geotermoelectrica",
+        "Hidroelectrica",
+        "Nucleoelectrica",
+        "Termica Convencional",
+        "Turbo Gas"
+    ],
+    title="Generación eléctrica por tecnología - Marzo 2026 (12:00)"
+)
+
+
+```
+```{python}
+fig.update_layout(
+    legend_title="Tecnología",
+    xaxis_title="Día",
+    yaxis_title="Generación (MWh)"
+)
+```
+
+```{python}
+import pandas as pd
+df_co2 = pd.read_csv("est_emisiones_co2_miles_ton.csv")
+df_co2.columns = df_co2.columns.str.strip()
+df_co2.head()
+
+```
